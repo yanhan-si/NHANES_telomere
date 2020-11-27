@@ -8,6 +8,6 @@
 # Updated: Nov 26, 2020
 # 79: -------------------------------------------------------------------------
 
-# wget https://wwwn.cdc.gov/Nchs/Nhanes/1999-2000/TELO_A.XPT -P data
-# wget https://wwwn.cdc.gov/Nchs/Nhanes/1999-2000/DEMO.XPT -P data
+wget https://wwwn.cdc.gov/Nchs/Nhanes/1999-2000/TELO_A.XPT -P data
+wget https://wwwn.cdc.gov/Nchs/Nhanes/1999-2000/DEMO.XPT -P data
 wget https://wwwn.cdc.gov/Nchs/Nhanes/1999-2000/BMX.XPT -P data
