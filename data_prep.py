@@ -60,6 +60,3 @@ def get_data(year):
     dx = dx.dropna()
 
     return dx
-
-# data = get_data(1999)
-# data.head()

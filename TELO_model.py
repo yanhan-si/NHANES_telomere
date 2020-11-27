@@ -30,12 +30,17 @@ import statsmodels.api as sm
 
 dx = get_data(1999)
 
+dx.RIDAGEYR.describe()
+
+dx.BMXBMI.describe()
+
+
 def plot_fit_by_age(result, fml):
 
     # Create a dataframe in which all variables are at the reference
     # level
     da = dx.iloc[0:100, :].copy()
-    da["RIDAGEYR"] = np.linspace(18, 80, 100)
+    da["RIDAGEYR"] = np.linspace(19, 85, 100)
     da["RIDRETH1"] = "OH"
 
     plt.figure(figsize=(8, 5))
@@ -92,7 +97,7 @@ def plot_fit_by_bmi(result, fml):
     # Create a dataframe in which all variables are at the reference
     # level
     da = dx.iloc[0:100, :].copy()
-    da["BMXBMI"] = np.linspace(15, 35, 100)
+    da["BMXBMI"] = np.linspace(16, 35, 100)
     da["RIDRETH1"] = "OH"
 
     plt.figure(figsize=(8, 5))
@@ -146,7 +151,7 @@ def plot_fit_by_age_race(result, fml):
     # Create a dataframe in which all variables are at the reference
     # level
     da = dx.iloc[0:100, :].copy()
-    da["RIDAGEYR"] = np.linspace(18, 80, 100)
+    da["RIDAGEYR"] = np.linspace(19, 85, 100)
     da["BMXBMI"] = 22
 
     plt.figure(figsize=(8, 5))
