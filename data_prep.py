@@ -25,6 +25,8 @@ def get_data(year):
 
     if year == 1999:
         xpt_files_use = xpt_files
+    elif year == 2000:
+        xpt_files_use = ["DEMO.XPT", "TELO_B.XPT", "BMX.XPT"]
     else:
         raise ValueError("Please provide the files names!")
 

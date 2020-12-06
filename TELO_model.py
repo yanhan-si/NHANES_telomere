@@ -137,13 +137,13 @@ def plot_basis(xv, xmat, names, degf):
     plt.grid(True)
 
     for k in range(degf):
-        vn = "bs(RIDAGEYR, 5)[%d]" % k
+        vn = "bs(RIDAGEYR, 7)[%d]" % k
         pos = names.index(vn)
         plt.plot(xv, xmat[:, pos], '-', rasterized=True)
 
     plt.xlabel("Age (years)", size=15)
     plt.ylabel("Basis function value", size=15)
-    plt.title("Spline basis for age (5 df)")
+    plt.title("Spline basis for age (7 df)")
     pdf.savefig()
 
 def plot_fit_by_age_race(result, fml):
@@ -199,7 +199,7 @@ plot_fit_by_age(result1, fml1)
 plot_fit_by_bmi(result1, fml1)
 
 # Nonlinearities but no interactions
-fml2 = "TELOMEAN ~ bs(RIDAGEYR, 5) + bs(BMXBMI, 5) + Female + RIDRETH1"
+fml2 = "TELOMEAN ~ bs(RIDAGEYR, 7) + bs(BMXBMI, 4) + Female + RIDRETH1"
 model2 = sm.OLS.from_formula(fml2, data=dx)
 result2 = model2.fit()
 plot_fit_by_age(result2, fml2)
@@ -210,8 +210,8 @@ plot_basis(dx.RIDAGEYR.values, result2.model.exog, result2.model.exog_names, 5)
 # Use AIC to select the degrees of freedom for age and BMI, each of
 # which is modeled using spline basis functions.
 aic = np.zeros((15, 15)) + np.nan
-for age_df in range(3, 15):
-    for bmi_df in range(3, 15):
+for age_df in range(3, 10):
+    for bmi_df in range(3, 10):
         fml3 = "TELOMEAN ~ bs(RIDAGEYR, age_df) + bs(BMXBMI, bmi_df) + Female + RIDRETH1"
         model3 = sm.OLS.from_formula(fml3, data=dx)
         result3 = model3.fit()
@@ -224,13 +224,13 @@ plt.imshow(aic, interpolation="nearest")
 plt.xlabel("BMI df", size=15)
 plt.ylabel("Age df", size=15)
 plt.colorbar()
-plt.xlim(3, 14)
-plt.ylim(3, 14)
+plt.xlim(3, 9)
+plt.ylim(3, 9)
 pdf.savefig()
 
 # This is the additive spline-based model that is optimal in terms of
 # degrees of freedom, as selected by AIC.
-fml4 = "TELOMEAN ~ bs(RIDAGEYR, 6) + bs(BMXBMI, 5) + Female + RIDRETH1"
+fml4 = "TELOMEAN ~ bs(RIDAGEYR, 7) + bs(BMXBMI, 3) + Female + RIDRETH1"
 model4 = sm.OLS.from_formula(fml4, data=dx)
 result4 = model4.fit()
 plot_fit_by_age(result4, fml4)
@@ -250,42 +250,159 @@ result6 = model6.fit()
 plot_fit_by_age(result6, fml6)
 plot_fit_by_bmi(result6, fml6)
 
+# +
+# Use AIC to select the degrees of freedom for age and BMI, each of
+# which is modeled using spline basis functions.
+aic = np.zeros((15, 15)) + np.nan
+for age_df in range(3, 10):
+    for bmi_df in range(3, 10):
+        fml7 = "TELOMEAN ~ (bs(RIDAGEYR, age_df) + bs(BMXBMI, bmi_df)) * Female + RIDRETH1"
+        model7 = sm.OLS.from_formula(fml7, data=dx)
+        result7 = model7.fit()
+        aic[age_df, bmi_df] = result7.aic
+        
+# Make a heatmap of the AIC values, so we can see where the best fit
+# is.
+plt.clf()
+plt.imshow(aic, interpolation="nearest")
+plt.xlabel("BMI df", size=15)
+plt.ylabel("Age df", size=15)
+plt.colorbar()
+plt.xlim(3, 9)
+plt.ylim(3, 9)
+pdf.savefig()
+# -
+
 # Take model 5 above and allow the curves to vary by sex
-fml7 = "TELOMEAN ~ (bs(RIDAGEYR, 6) + bs(BMXBMI, 5)) * Female + RIDRETH1"
+fml7 = "TELOMEAN ~ (bs(RIDAGEYR, 7) + bs(BMXBMI, 3)) * Female + RIDRETH1"
 model7 = sm.OLS.from_formula(fml7, data=dx)
 result7 = model7.fit()
 plot_fit_by_age(result7, fml7)
 plot_fit_by_bmi(result7, fml7)
 
+# +
+# Use AIC to select the degrees of freedom for age and BMI, each of
+# which is modeled using spline basis functions.
+aic = np.zeros((15, 15)) + np.nan
+for age_df in range(3, 10):
+
+    fml8 = "TELOMEAN ~ bs(RIDAGEYR, age_df) * BMXBMI * Female + RIDRETH1"
+    model8 = sm.OLS.from_formula(fml8, data=dx)
+    result8 = model8.fit()
+    aic[age_df, bmi_df] = result8.aic
+        
+# Make a heatmap of the AIC values, so we can see where the best fit
+# is.
+plt.clf()
+plt.imshow(aic, interpolation="nearest")
+plt.xlabel("BMI df", size=15)
+plt.ylabel("Age df", size=15)
+plt.colorbar()
+plt.xlim(3, 9)
+plt.ylim(3, 9)
+pdf.savefig()
+# -
+
 # Now include interactions between age and BMI, along with the other
 # interactions, but the role of BMI is conditionally linear
-fml8 = "TELOMEAN ~ bs(RIDAGEYR, 5) * BMXBMI * Female + RIDRETH1"
+fml8 = "TELOMEAN ~ bs(RIDAGEYR, 3) * BMXBMI * Female + RIDRETH1"
 model8 = sm.OLS.from_formula(fml8, data=dx)
 result8 = model8.fit()
 plot_fit_by_age(result8, fml8)
 plot_fit_by_bmi(result8, fml8)
 
+# +
+# Use AIC to select the degrees of freedom for age and BMI, each of
+# which is modeled using spline basis functions.
+aic = np.zeros((15, 15)) + np.nan
+for age_df in range(3, 10):
+    for bmi_df in range(3, 10):
+        fml9 = "TELOMEAN ~ bs(RIDAGEYR, age_df) * bs(BMXBMI, bmi_df) * Female + RIDRETH1"
+        model9 = sm.OLS.from_formula(fml9, data=dx)
+        result9 = model9.fit()
+        aic[age_df, bmi_df] = result9.aic
+        
+# Make a heatmap of the AIC values, so we can see where the best fit
+# is.
+plt.clf()
+plt.imshow(aic, interpolation="nearest")
+plt.xlabel("BMI df", size=15)
+plt.ylabel("Age df", size=15)
+plt.colorbar()
+plt.xlim(3, 9)
+plt.ylim(3, 9)
+pdf.savefig()
+# -
+
 # This is similar to the model above, except that BMI is now allowed
 # to be nonlinear
-fml9 = "TELOMEAN ~ bs(RIDAGEYR, 5) * bs(BMXBMI, 4) * Female + RIDRETH1"
+fml9 = "TELOMEAN ~ bs(RIDAGEYR, 3) * bs(BMXBMI, 3) * Female + RIDRETH1"
 model9 = sm.OLS.from_formula(fml9, data=dx)
 result9 = model9.fit()
 plot_fit_by_age(result9, fml9)
 plot_fit_by_bmi(result9, fml9)
 
+# +
+# Use AIC to select the degrees of freedom for age and BMI, each of
+# which is modeled using spline basis functions.
+aic = np.zeros((15, 15)) + np.nan
+for age_df in range(3, 10):
+    for bmi_df in range(3, 10):
+        fml10 = "TELOMEAN ~ bs(RIDAGEYR, age_df) + bs(BMXBMI, bmi_df) + Female * RIDRETH1"
+        model10 = sm.OLS.from_formula(fml10, data=dx)
+        result10 = model10.fit()
+        aic[age_df, bmi_df] = result10.aic
+        
+# Make a heatmap of the AIC values, so we can see where the best fit
+# is.
+plt.clf()
+plt.imshow(aic, interpolation="nearest")
+plt.xlabel("BMI df", size=15)
+plt.ylabel("Age df", size=15)
+plt.colorbar()
+plt.xlim(3, 9)
+plt.ylim(3, 9)
+pdf.savefig()
+# -
+
 # Model a common nonlinear structure for age and BMI using splines,
 # then allow these curves to be translated
-fml10 = "TELOMEAN ~ bs(RIDAGEYR, 5) + bs(BMXBMI, 4) + Female * RIDRETH1"
+fml10 = "TELOMEAN ~ bs(RIDAGEYR, 7) + bs(BMXBMI, 3) + Female * RIDRETH1"
 model10 = sm.OLS.from_formula(fml10, data=dx)
 result10 = model10.fit()
 plot_fit_by_age_race(result10, fml10)
 
+# +
+# Use AIC to select the degrees of freedom for age and BMI, each of
+# which is modeled using spline basis functions.
+aic = np.zeros((15, 15)) + np.nan
+for age_df in range(3, 10):
+    for bmi_df in range(3, 10):
+        fml11 = "TELOMEAN ~ bs(BMXBMI, bmi_df) + bs(RIDAGEYR, age_df) + RIDAGEYR * Female * RIDRETH1"
+        model11 = sm.OLS.from_formula(fml11, data=dx)
+        result11 = model11.fit()
+        aic[age_df, bmi_df] = result11.aic
+        
+# Make a heatmap of the AIC values, so we can see where the best fit
+# is.
+plt.clf()
+plt.imshow(aic, interpolation="nearest")
+plt.xlabel("BMI df", size=15)
+plt.ylabel("Age df", size=15)
+plt.colorbar()
+plt.xlim(3, 9)
+plt.ylim(3, 9)
+pdf.savefig()
+# -
+
 # Model common nonlinear curves for BMI and age using splines, and
 # allow these common curves to vary in a linear manner by age gender
 # and ethnicity.
-fml11 = "TELOMEAN ~ bs(BMXBMI, 4) + bs(RIDAGEYR, 5) + RIDAGEYR * Female * RIDRETH1"
+fml11 = "TELOMEAN ~ bs(BMXBMI, 4) + bs(RIDAGEYR, 7) + RIDAGEYR * Female * RIDRETH1"
 model11 = sm.OLS.from_formula(fml11, data=dx)
 result11 = model11.fit()
 plot_fit_by_age_race(result11, fml11)
 
 pdf.close()
+
+
